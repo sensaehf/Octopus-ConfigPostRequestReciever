@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	SecretDecoder "octopus/configReciever/src/decoder"
 )
 
 type Payload struct {
@@ -16,12 +17,18 @@ type Payload struct {
 	Customer        string `json:Customer""`
 }
 
+func callOctopus(p Payload) {}
+
 func recieveInfo(w http.ResponseWriter, req *http.Request) {
 	var p Payload
 	decoder := json.NewDecoder(req.Body)
 	decoder.Decode(&p)
-	log.Println(p)
 
+	Password, _ := SecretDecoder.DecodeSecret(p.Password)
+	p.Password = Password
+
+	callOctopus(p)
+	log.Println(p)
 }
 
 func main() {
