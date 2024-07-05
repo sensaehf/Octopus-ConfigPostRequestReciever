@@ -17,18 +17,28 @@ type Payload struct {
 	Customer        string `json:Customer""`
 }
 
-func callOctopus(p Payload) {}
+func callOctopus(p Payload) {} // TODO call OctopusCLI to create Configuration File using the inputs
+
+func verifieInputs(p Payload) bool { return true } //TODO validate Inputs
 
 func recieveInfo(w http.ResponseWriter, req *http.Request) {
 	var p Payload
 	decoder := json.NewDecoder(req.Body)
-	decoder.Decode(&p)
+	err := decoder.Decode(&p)
+
+	if err != nil {
+		log.Println("Failed to Parse JSON")
+		return
+	}
 
 	Password, _ := SecretDecoder.DecodeSecret(p.Password)
 	p.Password = Password
+	if verifieInputs(p) {
+		callOctopus(p)
+	} else {
+		log.Println("Failed to Validate Inputs")
+	}
 
-	callOctopus(p)
-	log.Println(p)
 }
 
 func main() {
