@@ -2,9 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	SecretDecoder "octopus/configReciever/src/decoder"
+	"os/exec"
+	"path/filepath"
 )
 
 type Payload struct {
@@ -17,10 +20,40 @@ type Payload struct {
 	Customer        string `json:Customer""`
 }
 
-func callOctopus(p Payload) {} // TODO call OctopusCLI to create Configuration File using the inputs
+func callOctopus(p Payload) {
+	var dScan string
+	if p.DomainScan {
+		dScan = "Yes"
+	} else {
+		dScan = "No"
+	}
+	path := filepath.Join("C:", "inetpub", "oc_configurator", "configs", "OctopusConfigurator.exe")
 
-func verifieInputs(p Payload) bool { return true } //TODO validate Inputs
+	cmd := exec.Command(path,
+		fmt.Sprintf("-scanFileName %s", p.ScanFileName),
+		fmt.Sprintf("-scanDescription %s", p.ScanDescription),
+		fmt.Sprintf("-ConfPassword %s", "TODO ENV VARIABLE"),
+		fmt.Sprintf("-Address %s", p.Address),
+		fmt.Sprintf("-Username %s", p.Username),
+		fmt.Sprintf("-Password %s", p.Password),
+		fmt.Sprintf("-Domainscan %s", dScan),
+		fmt.Sprintf("-Customer %s", p.Customer),
+	)
+	fmt.Println(cmd.Args)
+	/*rr := cmd.Run()
+	if err != nil {
+		log.Println(err)
+	}*/
 
+}
+
+func verifyInputs(p Payload) bool { //TODO verify input
+	match := true
+	return match
+
+}
+
+// Recieves Data, validates and Adds it to octopus
 func recieveInfo(w http.ResponseWriter, req *http.Request) {
 	var p Payload
 	decoder := json.NewDecoder(req.Body)
@@ -33,7 +66,7 @@ func recieveInfo(w http.ResponseWriter, req *http.Request) {
 
 	Password, _ := SecretDecoder.DecodeSecret(p.Password)
 	p.Password = Password
-	if verifieInputs(p) {
+	if verifyInputs(p) {
 		callOctopus(p)
 	} else {
 		log.Println("Failed to Validate Inputs")

@@ -1,5 +1,6 @@
 package SecretDecoder
 
-func DecodeSecret(secret string) (string, error) {
-	return "", nil
+func DecodeSecret(secret string) (string, error) { //TODO decode secret using Cert
+
+	return secret, nil
 }
