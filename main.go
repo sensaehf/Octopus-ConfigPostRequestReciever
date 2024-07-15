@@ -6,8 +6,10 @@ import (
 	"log"
 	"net/http"
 	SecretDecoder "octopus/configReciever/src/decoder"
+	"github.com/joho/godotenv"
 	"os/exec"
 	"path/filepath"
+	"os"
 )
 
 type Payload struct {
@@ -32,7 +34,7 @@ func callOctopus(p Payload) {
 	cmd := exec.Command(path,
 		fmt.Sprintf("-scanFileName %s", p.ScanFileName),
 		fmt.Sprintf("-scanDescription %s", p.ScanDescription),
-		fmt.Sprintf("-ConfPassword %s", "TODO ENV VARIABLE"),
+		fmt.Sprintf("-ConfPassword %s", os.Getenv("OCTOPUS_KEY")),
 		fmt.Sprintf("-Address %s", p.Address),
 		fmt.Sprintf("-Username %s", p.Username),
 		fmt.Sprintf("-Password %s", p.Password),
@@ -74,6 +76,10 @@ func recieveInfo(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+	  log.Fatal(err)
+	}
 	http.HandleFunc("/", recieveInfo)
 	http.ListenAndServe(":8090", nil)
 }
