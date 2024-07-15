@@ -50,7 +50,6 @@ func callOctopus(p Payload) {
 func verifyInputs(p Payload) bool { //TODO verify input
 	match := true
 	return match
-
 }
 
 // Recieves Data, validates and Adds it to octopus
