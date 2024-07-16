@@ -6,20 +6,21 @@ import (
 	"log"
 	"net/http"
 	SecretDecoder "octopus/configReciever/src/decoder"
-	"github.com/joho/godotenv"
+	"os"
 	"os/exec"
 	"path/filepath"
-	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type Payload struct {
-	ScanFileName    string `json:ScanFileName""`
-	ScanDescription string `json:ScanDescription",omitempty"`
-	Address         string `json:Address""`
-	Username        string `json:Username""`
-	Password        string `json:Password""`
-	DomainScan      bool   `json:DomainScan""`
-	Customer        string `json:Customer""`
+	ScanFileName    string `json:"scanFileName"`
+	ScanDescription string `json:"ScanDescription"`
+	Address         string `json:"Address"`
+	Username        string `json:"Username"`
+	Password        string `json:"Password"`
+	DomainScan      bool   `json:"DomainScan"`
+	Customer        string `json:"Customer"`
 }
 
 func callOctopus(p Payload) {
@@ -41,11 +42,11 @@ func callOctopus(p Payload) {
 		fmt.Sprintf("-Domainscan %s", dScan),
 		fmt.Sprintf("-Customer %s", p.Customer),
 	)
-	fmt.Println(cmd.Args)
-	/*rr := cmd.Run()
+
+	err := cmd.Run()
 	if err != nil {
 		log.Println(err)
-	}*/
+	}
 
 }
 
@@ -76,9 +77,9 @@ func recieveInfo(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	err := godotenv.Load()
+	err := godotenv.Load("./.env")
 	if err != nil {
-	  log.Fatal(err)
+		log.Fatal(err)
 	}
 	http.HandleFunc("/", recieveInfo)
 	http.ListenAndServe(":8090", nil)
