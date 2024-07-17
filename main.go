@@ -2,10 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
+	eventlogger "octopus/configReciever/src/EventLogger"
 	SecretDecoder "octopus/configReciever/src/decoder"
 	"os"
 	"os/exec"
@@ -15,6 +16,7 @@ import (
 )
 
 var DevFlag *bool // Feature flag that stop running the octopus program and Logging to the event viewer
+var WindowsLog eventlogger.Logger
 
 type Payload struct {
 	ScanFileName    string `json:"scanFileName"`
@@ -24,6 +26,10 @@ type Payload struct {
 	Password        string `json:"Password"`
 	DomainScan      bool   `json:"DomainScan"`
 	Customer        string `json:"Customer"`
+}
+
+func (p Payload) String() string {
+	return fmt.Sprintf("scanfileName:%s, ScanDescription:%s, Address:%s, Username:%s, Customer:%s", p.ScanFileName, p.ScanDescription, p.Address, p.Username, p.Customer)
 }
 
 func callOctopus(p Payload) {
@@ -46,10 +52,10 @@ func callOctopus(p Payload) {
 		fmt.Sprintf("-Customer %s", p.Customer),
 	)
 	if !*DevFlag {
-
 		err := cmd.Run()
 		if err != nil {
-			log.Println(err)
+			WindowsLog.Warning(
+				fmt.Errorf("failed to run command using %s", p.String()))
 		}
 
 	}
@@ -68,7 +74,7 @@ func recieveInfo(w http.ResponseWriter, req *http.Request) {
 	err := decoder.Decode(&p)
 
 	if err != nil {
-		log.Println("Failed to Parse JSON")
+		WindowsLog.Error(errors.New("failed to Parse JSON"))
 		return
 	}
 
@@ -77,19 +83,27 @@ func recieveInfo(w http.ResponseWriter, req *http.Request) {
 	if verifyInputs(p) {
 		callOctopus(p)
 	} else {
-		log.Println("Failed to Validate Inputs")
+		p.Password = "SECRET"
+		WindowsLog.Warning(fmt.Errorf("input failed to parse for payload %s", p.String()))
 	}
 
 }
 
 func main() {
+	WindowsLog.Init()
+
 	err := godotenv.Load("./.env")
 	if err != nil {
-		log.Fatal(err)
+		WindowsLog.Error(fmt.Errorf("failed to load .env file, %s", err.Error()))
+		os.Exit(1)
 	}
 
 	DevFlag = flag.Bool("Dev", false, "Turns on Dev mode. Stops program from running the octopus.exe program")
 
 	http.HandleFunc("/", recieveInfo)
-	http.ListenAndServe(":8090", nil)
+	err = http.ListenAndServe(":8090", nil)
+
+	if err != nil {
+		WindowsLog.Error(err)
+	}
 }
