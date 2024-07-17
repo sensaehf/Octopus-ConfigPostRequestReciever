@@ -38,13 +38,13 @@ func (p Payload) String() string {
 }
 
 func callOctopus(p Payload) {
-	var dScan string
+	var dScan string // Convert Bool to Yes/No for CLI
 	if p.DomainScan {
 		dScan = "Yes"
 	} else {
 		dScan = "No"
 	}
-	path := filepath.Join("C:", "inetpub", "oc_configurator", "configs", "OctopusConfigurator.exe")
+	path := filepath.Join("C:", "inetpub", "oc_configurator", "configs", "OctopusConfigurator.exe") // Get the path to excecutable in windows OS
 
 	cmd := exec.Command(path,
 		fmt.Sprintf("-scanFileName %s", p.ScanFileName),
@@ -56,6 +56,7 @@ func callOctopus(p Payload) {
 		fmt.Sprintf("-Domainscan %s", dScan),
 		fmt.Sprintf("-Customer %s", p.Customer),
 	)
+
 	if !*DevFlag {
 		err := cmd.Run()
 		if err != nil {
