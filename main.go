@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,6 +13,8 @@ import (
 
 	"github.com/joho/godotenv"
 )
+
+var DevFlag *bool // Feature flag that stop running the octopus program and Logging to the event viewer
 
 type Payload struct {
 	ScanFileName    string `json:"scanFileName"`
@@ -42,10 +45,13 @@ func callOctopus(p Payload) {
 		fmt.Sprintf("-Domainscan %s", dScan),
 		fmt.Sprintf("-Customer %s", p.Customer),
 	)
+	if !*DevFlag {
 
-	err := cmd.Run()
-	if err != nil {
-		log.Println(err)
+		err := cmd.Run()
+		if err != nil {
+			log.Println(err)
+		}
+
 	}
 
 }
@@ -81,6 +87,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	DevFlag = flag.Bool("Dev", false, "Turns on Dev mode. Stops program from running the octopus.exe program")
+
 	http.HandleFunc("/", recieveInfo)
 	http.ListenAndServe(":8090", nil)
 }
