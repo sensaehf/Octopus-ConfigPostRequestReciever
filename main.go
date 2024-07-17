@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"net/http"
 	eventlogger "octopus/configReciever/src/EventLogger"
-	SecretDecoder "octopus/configReciever/src/decoder"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -93,8 +92,6 @@ func recieveInfo(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	Password, _ := SecretDecoder.DecodeSecret(p.Password)
-	p.Password = Password
 	if verifyInputs(p) {
 		callOctopus(p)
 	} else {
