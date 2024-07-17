@@ -31,6 +31,7 @@ type Payload struct {
 	Customer        string `json:"Customer"`
 }
 
+// Make sure to string does not contain any Sensetive data
 func (p Payload) String() string {
 	return fmt.Sprintf("scanfileName:%s, ScanDescription:%s, Address:%s, Username:%s, Customer:%s", p.ScanFileName, p.ScanDescription, p.Address, p.Username, p.Customer)
 }
@@ -67,6 +68,14 @@ func callOctopus(p Payload) {
 
 func verifyInputs(p Payload) bool { //TODO verify input
 	match := true
+	if(len(p.ScanFileName) <= 0){return false}
+	if(len(p.ScanDescription) <= 0){return false}
+	if(len(p.Address) <= 0){return false}
+	if(len(p.Customer) <= 0){return false}
+
+	if(len(p.Username) <= 0){return false}
+
+
 	return match
 }
 
