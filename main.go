@@ -14,12 +14,13 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
 
-var DevFlag *bool // Feature flag that stop running the octopus program and Logging to the event viewer
-var WindowsLog eventlogger.Logger
+var DevFlag *bool                 // Feature flag that stop running the octopus program and Logging to the event viewer
+var WindowsLog eventlogger.Logger // Custom Library to send logs/events to the Windows Event Logs
 
 type Payload struct {
 	ScanFileName    string `json:"scanFileName"`
@@ -66,15 +67,16 @@ func callOctopus(p Payload) {
 
 }
 
-func verifyInputs(p Payload) bool { //TODO verify input
+func verifyInputs(p Payload) bool {
 	match := true
-	if(len(p.ScanFileName) <= 0){return false}
-	if(len(p.ScanDescription) <= 0){return false}
-	if(len(p.Address) <= 0){return false}
-	if(len(p.Customer) <= 0){return false}
 
-	if(len(p.Username) <= 0){return false}
-
+	if !strings.Contains("srv.ocscanner", p.Username) ||
+		len(p.Customer) <= 0 ||
+		len(p.Address) <= 0 ||
+		len(p.ScanDescription) <= 0 ||
+		len(p.ScanFileName) <= 0 {
+		return false
+	}
 
 	return match
 }
