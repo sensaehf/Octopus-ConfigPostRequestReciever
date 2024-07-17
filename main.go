@@ -10,16 +10,16 @@ import (
 	"fmt"
 	"net/http"
 	eventlogger "octopus/configReciever/src/EventLogger"
-	SecretDecoder "octopus/configReciever/src/decoder"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
 
-var DevFlag *bool // Feature flag that stop running the octopus program and Logging to the event viewer
-var WindowsLog eventlogger.Logger
+var DevFlag *bool                 // Feature flag that stop running the octopus program and Logging to the event viewer
+var WindowsLog eventlogger.Logger // Custom Library to send logs/events to the Windows Event Logs
 
 type Payload struct {
 	ScanFileName    string `json:"scanFileName"`
@@ -31,18 +31,19 @@ type Payload struct {
 	Customer        string `json:"Customer"`
 }
 
+// Make sure to string does not contain any Sensetive data
 func (p Payload) String() string {
 	return fmt.Sprintf("scanfileName:%s, ScanDescription:%s, Address:%s, Username:%s, Customer:%s", p.ScanFileName, p.ScanDescription, p.Address, p.Username, p.Customer)
 }
 
 func callOctopus(p Payload) {
-	var dScan string
+	var dScan string // Convert Bool to Yes/No for CLI
 	if p.DomainScan {
 		dScan = "Yes"
 	} else {
 		dScan = "No"
 	}
-	path := filepath.Join("C:", "inetpub", "oc_configurator", "configs", "OctopusConfigurator.exe")
+	path := filepath.Join("C:", "inetpub", "oc_configurator", "configs", "OctopusConfigurator.exe") // Get the path to excecutable in windows OS
 
 	cmd := exec.Command(path,
 		fmt.Sprintf("-scanFileName %s", p.ScanFileName),
@@ -54,6 +55,7 @@ func callOctopus(p Payload) {
 		fmt.Sprintf("-Domainscan %s", dScan),
 		fmt.Sprintf("-Customer %s", p.Customer),
 	)
+
 	if !*DevFlag {
 		err := cmd.Run()
 		if err != nil {
@@ -65,8 +67,17 @@ func callOctopus(p Payload) {
 
 }
 
-func verifyInputs(p Payload) bool { //TODO verify input
+func verifyInputs(p Payload) bool {
 	match := true
+
+	if !strings.Contains("srv.ocscanner", p.Username) ||
+		len(p.Customer) <= 0 ||
+		len(p.Address) <= 0 ||
+		len(p.ScanDescription) <= 0 ||
+		len(p.ScanFileName) <= 0 {
+		return false
+	}
+
 	return match
 }
 
@@ -81,8 +92,6 @@ func recieveInfo(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	Password, _ := SecretDecoder.DecodeSecret(p.Password)
-	p.Password = Password
 	if verifyInputs(p) {
 		callOctopus(p)
 	} else {
