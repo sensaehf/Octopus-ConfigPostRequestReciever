@@ -43,7 +43,7 @@ func callOctopus(p Payload) {
 	} else {
 		dScan = "No"
 	}
-	path := filepath.Join("C:", "inetpub", "oc_configurator", "configs", "OctopusConfigurator.exe") // Get the path to excecutable in windows OS
+	path := filepath.Join("C:\\", "inetpub", "oc_configurator", "configs", "OctopusConfigurator.exe") // Get the path to excecutable in windows OS
 
 	cmd := exec.Command(path,
 		fmt.Sprintf("-scanFileName %s", p.ScanFileName),
