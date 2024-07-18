@@ -111,7 +111,8 @@ func main() {
 	}
 
 	DevFlag = flag.Bool("Dev", false, "Turns on Dev mode. Stops program from running the octopus.exe program")
-
+	flag.Parse()
+	
 	http.HandleFunc("/", recieveInfo)
 	err = http.ListenAndServe(":8090", nil)
 
