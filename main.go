@@ -43,9 +43,8 @@ func callOctopus(p Payload) {
 	} else {
 		dScan = "No"
 	}
-	path := filepath.Join("C:\\", "inetpub", "oc_configurator", "configs", "OctopusConfigurator.exe") // Get the path to excecutable in windows OS
 
-	cmd := exec.Command(path,
+	cmd := exec.Command("C:\\inetpub\\oc_configurator\\configs\\OctopusConfigurator.exe",
 		fmt.Sprintf("-scanFileName %s", p.ScanFileName),
 		fmt.Sprintf("-scanDescription %s", p.ScanDescription),
 		fmt.Sprintf("-ConfPassword %s", os.Getenv("OCTOPUS_KEY")),
@@ -55,6 +54,8 @@ func callOctopus(p Payload) {
 		fmt.Sprintf("-Domainscan %s", dScan),
 		fmt.Sprintf("-Customer %s", p.Customer),
 	)
+
+	cmd.Dir = filepath.Join()
 
 	if !*DevFlag {
 		err := cmd.Run()
@@ -102,8 +103,8 @@ func recieveInfo(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	WindowsLog.Init()
-
+	WindowsLog = WindowsLog.Init()
+	fmt.Println(WindowsLog.Name)
 	err := godotenv.Load("./.env")
 	if err != nil {
 		WindowsLog.Error(fmt.Errorf("failed to load .env file, %s", err.Error()))
@@ -112,9 +113,9 @@ func main() {
 
 	DevFlag = flag.Bool("Dev", false, "Turns on Dev mode. Stops program from running the octopus.exe program")
 	flag.Parse()
-	
+
 	http.HandleFunc("/", recieveInfo)
-	err = http.ListenAndServe(":8090", nil)
+	err = http.ListenAndServe(":80", nil)
 
 	if err != nil {
 		WindowsLog.Error(err)
