@@ -43,8 +43,7 @@ func callOctopus(p Payload) {
 	} else {
 		dScan = "No"
 	}
-
-	cmd := exec.Command("C:\\inetpub\\oc_configurator\\configs\\OctopusConfigurator.exe",
+	args := []string{"OctopusConfigurator",
 		fmt.Sprintf("-scanFileName %s", p.ScanFileName),
 		fmt.Sprintf("-scanDescription %s", p.ScanDescription),
 		fmt.Sprintf("-ConfPassword %s", os.Getenv("OCTOPUS_KEY")),
@@ -52,9 +51,8 @@ func callOctopus(p Payload) {
 		fmt.Sprintf("-Username %s", p.Username),
 		fmt.Sprintf("-Password %s", p.Password),
 		fmt.Sprintf("-Domainscan %s", dScan),
-		fmt.Sprintf("-Customer %s", p.Customer),
-	)
-
+		fmt.Sprintf("Customer %s", p.Customer)}
+	cmd := exec.Command("C:\\inetpub\\oc_configurator\\configs\\OctopusConfigurator", args...)
 	cmd.Dir = filepath.Join()
 
 	if !*DevFlag {
