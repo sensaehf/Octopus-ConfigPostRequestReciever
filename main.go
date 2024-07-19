@@ -11,8 +11,6 @@ import (
 	"net/http"
 	eventlogger "octopus/configReciever/src/EventLogger"
 	"os"
-	"os/exec"
-	"path/filepath"
 	"strings"
 
 	"github.com/joho/godotenv"
@@ -43,8 +41,7 @@ func callOctopus(p Payload) {
 	} else {
 		dScan = "No"
 	}
-	args := []string{"powershell",
-		"C:\\inetpub\\oc_configurator\\configs\\OctopusConfigurator",
+	args := []string{
 		fmt.Sprintf("-scanFileName %s", p.ScanFileName),
 		fmt.Sprintf("-scanDescription %s", p.ScanDescription),
 		fmt.Sprintf("-ConfPassword %s", os.Getenv("OCTOPUS_KEY")),
@@ -53,17 +50,9 @@ func callOctopus(p Payload) {
 		fmt.Sprintf("-Password %s", p.Password),
 		fmt.Sprintf("-Domainscan %s", dScan),
 		fmt.Sprintf("Customer %s", p.Customer)}
-	cmd := exec.Command("powershell", args...)
-	cmd.Dir = filepath.Join()
 
-	if !*DevFlag {
-		err := cmd.Run()
-		if err != nil {
-			WindowsLog.Warning(
-				fmt.Errorf("failed to run command using %s", p.String()))
-		}
-
-	}
+	procAttr := new(os.ProcAttr)
+	os.StartProcess("OctopusConfigurator.exe", args, procAttr)
 
 }
 
