@@ -93,7 +93,7 @@ func recieveInfo(w http.ResponseWriter, req *http.Request) {
 func main() {
 	WindowsLog.Init()
 
-	port := 
+	port := "8090"
 	if os.Getenv("ASPNETCORE_PORT") != ":8090" { // get enviroment variable that set by ACNM 
 		port = os.Getenv("ASPNETCORE_PORT")
 	}
