@@ -91,8 +91,13 @@ func recieveInfo(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	WindowsLog = WindowsLog.Init()
-	fmt.Println(WindowsLog.Name)
+	WindowsLog.Init()
+
+	port := 
+	if os.Getenv("ASPNETCORE_PORT") != ":8090" { // get enviroment variable that set by ACNM 
+		port = os.Getenv("ASPNETCORE_PORT")
+	}
+
 	err := godotenv.Load("./.env")
 	if err != nil {
 		WindowsLog.Error(fmt.Errorf("failed to load .env file, %s", err.Error()))
@@ -103,7 +108,10 @@ func main() {
 	flag.Parse()
 
 	http.HandleFunc("/", recieveInfo)
-	err = http.ListenAndServe(":80", nil)
+
+
+	
+	err = http.ListenAndServe(port, nil)
 
 	if err != nil {
 		WindowsLog.Error(err)
