@@ -52,8 +52,10 @@ func callOctopus(p Payload) {
 		fmt.Sprintf("-Domainscan %s", dScan),
 		fmt.Sprintf("Customer %s", p.Customer)}
 
-	procAttr := new(os.ProcAttr)
-	os.StartProcess("OctopusConfigurator.exe", args, procAttr)
+	attr := &os.ProcAttr{
+		Files: []*os.File{os.Stdin, os.Stdout, os.Stderr},
+	}
+	os.StartProcess("OctopusConfigurator.exe", args, attr)
 
 }
 
