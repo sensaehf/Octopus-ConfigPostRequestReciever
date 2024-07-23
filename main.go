@@ -11,13 +11,14 @@ import (
 	"net/http"
 	eventlogger "octopus/configReciever/src/EventLogger"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/joho/godotenv"
 )
 
 var DevFlag *bool // Feature flag that stop running the octopus program and Logging to the event viewer
-var PortFlag *int
+var PortFlag *int64
 var WindowsLog eventlogger.Logger // Custom Library to send logs/events to the Windows Event Logs
 
 type Payload struct {
@@ -96,7 +97,7 @@ func recieveInfo(w http.ResponseWriter, req *http.Request) {
 func main() {
 	WindowsLog.Init()
 	DevFlag = flag.Bool("Dev", false, "Turns on Dev mode. Stops program from running the octopus.exe program")
-	PortFlag = flag.Int("port", 8090, "Selects what port is listned to")
+	PortFlag = flag.Int64("port", 8090, "Selects what port is listned to")
 
 	err := godotenv.Load("./.env")
 	if err != nil {
@@ -108,7 +109,14 @@ func main() {
 
 	http.HandleFunc("/", recieveInfo)
 
-	err = http.ListenAndServe(fmt.Sprintf(":%d", *PortFlag), nil)
+	port := *PortFlag
+	if os.Getenv("ASPNETCORE_PORT") != "" { // get enviroment variable that set by ACNM
+		p := os.Getenv("ASPNETCORE_PORT")
+		port, _ = strconv.ParseInt(p, 10, 32)
+
+	}
+
+	err = http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 
 	if err != nil {
 		WindowsLog.Error(err)
