@@ -1,1 +1,1 @@
-{"scanFileName":"ScanFileName", "ScanDescription":"ScanDescription", "Address":"Address", "Username":"Username", "DomainScan":false,  "Customer":"Customer",  "Password":"Password"}
+{"ScanFileName":"ScanFileName", "ScanDescription":"ScanDescription", "Address":"Address", "Username":"srv.ocscanner", "DomainScan":false,  "Customer":"Customer",  "Password":"Password"}

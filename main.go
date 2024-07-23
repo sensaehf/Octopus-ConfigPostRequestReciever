@@ -21,7 +21,7 @@ var PortFlag *int
 var WindowsLog eventlogger.Logger // Custom Library to send logs/events to the Windows Event Logs
 
 type Payload struct {
-	ScanFileName    string `json:"scanFileName"`
+	ScanFileName    string `json:"ScanFileName"`
 	ScanDescription string `json:"ScanDescription"`
 	Address         string `json:"Address"`
 	Username        string `json:"Username"`
@@ -32,7 +32,7 @@ type Payload struct {
 
 // Make sure to string does not contain any Sensetive data
 func (p Payload) String() string {
-	return fmt.Sprintf("scanfileName:%s, ScanDescription:%s, Address:%s, Username:%s, Customer:%s", p.ScanFileName, p.ScanDescription, p.Address, p.Username, p.Customer)
+	return fmt.Sprintf("ScanfileName:%s, ScanDescription:%s, Address:%s, Username:%s, Customer:%s", p.ScanFileName, p.ScanDescription, p.Address, p.Username, p.Customer)
 }
 
 func callOctopus(p Payload) {
@@ -43,14 +43,14 @@ func callOctopus(p Payload) {
 		dScan = "No"
 	}
 	args := []string{
-		fmt.Sprintf("-scanFileName %s", p.ScanFileName),
-		fmt.Sprintf("-scanDescription %s", p.ScanDescription),
+		fmt.Sprintf("-ScanFileName %s", p.ScanFileName),
+		fmt.Sprintf("-ScanDescription %s", p.ScanDescription),
 		fmt.Sprintf("-ConfPassword %s", os.Getenv("OCTOPUS_KEY")),
 		fmt.Sprintf("-Address %s", p.Address),
 		fmt.Sprintf("-Username %s", p.Username),
 		fmt.Sprintf("-Password %s", p.Password),
 		fmt.Sprintf("-Domainscan %s", dScan),
-		fmt.Sprintf("Customer %s", p.Customer)}
+		fmt.Sprintf("-Customer %s", p.Customer)}
 
 	attr := &os.ProcAttr{
 		Files: []*os.File{os.Stdin, os.Stdout, os.Stderr},
