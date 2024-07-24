@@ -11,6 +11,7 @@ import (
 	"net/http"
 	eventlogger "octopus/configReciever/src/EventLogger"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -43,21 +44,16 @@ func callOctopus(p Payload) {
 	} else {
 		dScan = "No"
 	}
-	args := []string{
-		fmt.Sprintf("-ScanFileName %s", p.ScanFileName),
-		fmt.Sprintf("-ScanDescription %s", p.ScanDescription),
-		fmt.Sprintf("-ConfPassword %s", os.Getenv("OCTOPUS_KEY")),
-		fmt.Sprintf("-Address %s", p.Address),
-		fmt.Sprintf("-Username %s", p.Username),
-		fmt.Sprintf("-Password %s", p.Password),
-		fmt.Sprintf("-Domainscan %s", dScan),
-		fmt.Sprintf("-Customer %s", p.Customer)}
 
-	attr := &os.ProcAttr{
-		Files: []*os.File{os.Stdin, os.Stdout, os.Stderr},
+	data := []byte(fmt.Sprintf("-ScanFileName %s -ScanDescription%s -ConfPassword %s -Address %s -Username %s -Password %s -Domainscan %s -Customer %s", p.ScanFileName, p.ScanDescription, os.Getenv("OCTOPUS_KEY"), p.Address, p.Username, p.Password, dScan, p.Customer))
+
+	// Specify the file path
+	path := filepath.Join("C:\\", "Admin", "ConfigData", "data.txt")
+	// Write data to the file
+	err := os.WriteFile(path, data, 0644)
+	if err != nil {
+		WindowsLog.Warning(err)
 	}
-	os.StartProcess("OctopusConfigurator.exe", args, attr)
-
 }
 
 func verifyInputs(p Payload) bool {
