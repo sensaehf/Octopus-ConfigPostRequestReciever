@@ -45,7 +45,7 @@ func callOctopus(p Payload) {
 		dScan = "No"
 	}
 
-	data := []byte(fmt.Sprintf("-ScanFileName %s -ScanDescription%s -ConfPassword %s -Address %s -Username %s -Password %s -Domainscan %s -Customer %s", p.ScanFileName, p.ScanDescription, os.Getenv("OCTOPUS_KEY"), p.Address, p.Username, p.Password, dScan, p.Customer))
+	data := []byte(fmt.Sprintf("-ScanFileName %s -ScanDescription %s -ConfPassword %s -Address %s -Username %s -Password %s -Domainscan %s -Customer %s", p.ScanFileName, p.ScanDescription, os.Getenv("OCTOPUS_KEY"), p.Address, p.Username, p.Password, dScan, p.Customer))
 
 	// Specify the file path
 	path := filepath.Join("C:\\", "Admin", "ConfigData", "data.txt")
